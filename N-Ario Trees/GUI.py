@@ -126,10 +126,16 @@ class GUI:
     def buscar(self):
         nombre = simpledialog.askstring("Buscar", "Ingrese el nombre a buscar:")
         opciones = self.gestor.buscar()
-        if nombre in opciones:
-            print(f"El archivo/carpeta '{nombre}' existe.")
-        else:
-            print(f"No se encontró el archivo/carpeta '{nombre}'.")
+        for archivo in opciones:
+            nombre_nodo=os.path.basename(archivo)
+            if nombre==nombre_nodo:
+              print(f"El archivo/carpeta '{nombre}' existe y su ruta es'{archivo}'")
+              if os.path.isdir(archivo):
+                lista_archivos = os.listdir(archivo)
+                print(f"contenido:"+"\n")
+                for archivos in lista_archivos:
+                    nombres=os.path.basename(archivos)
+                    print(f"'{nombres}'")
     def run(self):
         self.root.mainloop()
 class StdoutRedirector:

@@ -57,7 +57,7 @@ class Gestor:
         opciones = []
 
         def agregar_nombres(node):
-            opciones.append(os.path.basename(node.data))
+            opciones.append(node.data)
             for child in node.children:
                 agregar_nombres(child)
 
