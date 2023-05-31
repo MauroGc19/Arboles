@@ -1,78 +1,65 @@
 import os
+import shutil
 from NaryTree import NaryTree, NaryTreeNode
-import tkinter as tk
 
 class Gestor:
     def __init__(self):
         self.arbol_directorios = NaryTree()
 
-
-    def explorar(self, ruta_actual,frame, padre = None,):
+    def explorar(self, ruta_actual, ident="", padre = None):
         lista_archivos = os.listdir(ruta_actual)
         for archivo in lista_archivos:
                 ruta_completa = ruta_actual +"/"+ archivo 
                 nodo = NaryTreeNode(ruta_completa)
                 self.arbol_directorios.add_node(ruta_completa, ruta_actual)
-                nombre=os.path.basename(nodo.data)
-                nombre_padre=os.path.basename(padre)
-                info_label = tk.Label(frame)
-                info_label.pack()
-                info_label.config(text="el nombre de la carpeta es "+ nombre+" y esta en "+nombre_padre)
+                nombre = os.path.basename(nodo.data)
                 if os.path.isdir(ruta_completa):
-                    self.explorar(ruta_completa,frame, nodo.data)
-    def renombrar(self, ruta_original, nombre, label):
+                    print(f"{ident}{nombre}/")
+                    self.explorar(ruta_completa, ident + "   ",nodo.data)
+                else:
+                    print(f"{ident}{nombre}")
+    def renombrar(self, ruta_original, nombre):
         padre=self.arbol_directorios._find_parent(ruta_original, self.arbol_directorios.root)
         if padre:
             ruta_nueva = padre.data+ "/"+nombre
             try:
-                nombre_original=os.path.basename(ruta_original)
                 os.rename(ruta_original, ruta_nueva)
                 self.arbol_directorios.rename_node(ruta_original, ruta_nueva)
-                label.config(text="La cartea '{}'fue renombrada por ".format(nombre_original)+nombre)
-               
+                print(self.arbol_directorios.find_node(ruta_nueva))
+                print("El archivo/carpeta se ha renombrado exitosamente.")
             except:
                 print("Error al renombrar el archivo/carpeta.")
         else:
             print("No se encontró la ubicación original del archivo/carpeta.")
-        # ruta =self.arbol_directorios.find_node(ruta_nueva)
-        # print(ruta.data)
         
         
-    def eliminar(self, locacion,frame):
-        # nombre=os.path.basename(locacion)
-        # self.arbol_directorios.remove_node(locacion)
-        # if os.path.isdir(locacion):
-        #      os.rmdir(locacion)
-        #     #  label.config(text="La carpeta '{}' fue eliminada".format(nombre))
-        # else:
-        #     os.remove(locacion)
-        #     print("has been removed successfully")
-        #     # label.config(text="El archivo '{}' ha sido eliminado exitosamente".format(nombre))
+    def eliminar(self, locacion):
         if os.path.isdir(locacion):
             # Eliminar directorio y su contenido
             try:
                 for item in os.listdir(locacion):
                     item_path = os.path.join(locacion, item)
-                    self.eliminar(item_path,frame)
-                nombre=os.path.basename(locacion)
+                    self.eliminar(item_path)
                 os.rmdir(locacion)
-                self.arbol_directorios.remove_node(locacion)
-                info_label = tk.Label(frame)
-                info_label.pack()
-                info_label.config(text="La carpeta '{}' fue eliminada".format(nombre))
+                print(f"Directorio eliminado: {locacion}")
             except OSError as e:
-                info_label = tk.Label(frame)
-                info_label.pack()
-                info_label.config(text=f"No se pudo eliminar el directorio {locacion}: {e}")
+                print(f"No se pudo eliminar el directorio {locacion}: {e}")
         elif os.path.isfile(locacion):
             # Eliminar archivo
             try:
-                nombre=os.path.basename(locacion)
                 os.remove(locacion)
-                self.arbol_directorios.remove_node(locacion)
-                info_label = tk.Label(frame)
-                info_label.config(text="La archivo '{}' fue eliminado".format(nombre))
+                print(f"Archivo eliminado: {locacion}")
             except OSError as e:
                 print(f"No se pudo eliminar el archivo {locacion}: {e}")
         else:
             print(f"Ubicación inválida: {locacion}")
+    def buscar(self):
+        opciones = []
+
+        def agregar_nombres(node):
+            opciones.append(os.path.basename(node.data))
+            for child in node.children:
+                agregar_nombres(child)
+
+        agregar_nombres(self.arbol_directorios.root)
+        return opciones
